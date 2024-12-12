@@ -1,6 +1,8 @@
 # HDCAnet
 official code for "Towards blind super-resolution for stereo image: A hybrid degradation-content aware stereo image super-resolution network"
+
 Peiming Lin <sup>1</sup> | [Sumei Li](https://seea.tju.edu.cn/info/1015/1620.htm)<sup>2</sup> | Anqi Liu <sup>3</sup>
+
 Tianjin University
 
 :star: If HDCAnet is helpful to your images or projects, please help star this repo. Thanks! :hugs:
