@@ -9,9 +9,9 @@ Tianjin University
 
 
 ### 📌 TODO
-- [ ] release the pretrained models
-- [ ] release the training code
-- [ ] release the training and testing data
+- [   ] release the pretrained models
+- [ √ ] release the training code
+- [ √ ] release the training and testing data
 
 ## ⚙️ Dependencies and Installation
 The codes are based on [BasicSR](https://github.com/xinntao/BasicSR).
