@@ -1,0 +1,83 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2022 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: HDCAnet
+model_type: BlindSSRModel
+scale: 4
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  test0:
+    name: KITTI2012
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/KITTI2012/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/KITTI2012/lr_x4
+    io_backend:
+      type: disk
+  test1:
+    name: KITTI2015
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/KITTI2015/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/KITTI2015/lr_x4
+    io_backend:
+      type: disk
+  test2:
+    name: Middlebury
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/Middlebury/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/Middlebury/lr_x4
+    io_backend:
+      type: disk
+  test3:
+    name: Flickr1024
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/Flickr1024/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/Flickr1024/lr_x4
+    io_backend:
+      type: disk
+  test4:
+    name: NTIRE-track3-valid
+    type: PairedImageSRLRDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/NTIRE_track3/HHRR
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/NTIRE_track3/LLRR_x4
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: BlindSSR
+
+# path
+path:
+  pretrain_network_g: /LinPeiMing/HDCAnet/experiments/HDCAnet/models/net_g_latest.pth
+  strict_load_g: true
+  param_key_g: params_ema
+  resume_state: ~
+
+# validation settings
+val:
+  save_img: true
+  grids: false
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_skimage_ssim
+    lpips:
+      type: calculate_lpips
+    MADE:
+      type: calculate_MADE
+      fast: false
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
