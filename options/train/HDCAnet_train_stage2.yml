@@ -1,0 +1,116 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2022 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: HDCAnet
+model_type: BlindSSRModel
+scale: 4
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  train:
+    name: Real-Flickr1024train
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real-Flickr1024/train/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real-Flickr1024/train/lr_x4
+    io_backend:
+      type: disk
+
+    gt_size_h: 120
+    gt_size_w: 360
+    use_hflip: true
+    use_vflip: true
+    use_rot: false
+    flip_RGB: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 32
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: KITTI2012
+    type: PairedStereoImageDataset
+    dataroot_gt: /LinPeiMing/Dataset/Real_stereo_test/KITTI2012/hr
+    dataroot_lq: /LinPeiMing/Dataset/Real_stereo_test/KITTI2012/lr_x4
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: BlindSSR
+
+# path
+path:
+  pretrain_network_g: /experiment/HDCAnet_Encoder/net_g_latest.pth
+  strict_load_g: false
+  resume_state: ~
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: AdamW
+    lr: !!float 5e-4
+    weight_decay: !!float 0
+    betas: [0.9, 0.9]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 100000
+    eta_min: !!float 1e-7
+
+  total_iter: 100000
+  warmup_iter: -1 # no warm up
+  mixup: false
+
+  # losses
+  contrastive_opt:
+    type: CrossEntropyLoss
+    loss_weight: 1.0
+    reduction: mean
+
+  pixel_opt:
+    type: ComposeLoss
+    loss_weight: 0.05
+    reduction: mean
+
+ #validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: false
+  trans_num: 1
+  max_minibatch: 1
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_skimage_ssim
+    lpips:
+      type: calculate_lpips
+    MADE:
+      type: calculate_MADE
+      fast: false
+
+# logging settings
+logger:
+  print_freq: 500
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
